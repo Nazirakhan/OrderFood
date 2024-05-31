@@ -28,6 +28,9 @@ def registerUser(request):
             user.role = User.CUSTOMER
             user.save()
             print('User is created')
+        else:
+            print('Invalid form')
+            print(form.errors)
 
     else:
         form = UserForm()
