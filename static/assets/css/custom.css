@@ -13,4 +13,21 @@
     right: 20px;
     animation-name: show-toast;
     animation-duration: 7s;
+    z-index: 1;
 }
+
+w3-display-middle{
+    background-color: #100;
+    color: white;
+    }
+
+    h1 {
+    color: red;
+    }
+
+    h6{
+    color: red;
+      font-weight: 100;
+    text-decoration: none; /*underline;*/
+    }
+
