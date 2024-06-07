@@ -6,7 +6,7 @@ from vendor.forms import VendorForm
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
-from .utils import detectUser, send_verification_email, reset_password_email
+from .utils import detectUser, send_verification_email
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 
@@ -52,7 +52,9 @@ def registerUser(request):
             user.role = User.CUSTOMER
             user.save()
             # Send email notification for verification
-            send_verification_email(request, user)
+            mail_subject = "Please activate your account"
+            email_template = 'accounts/emails/account_verification_email.html'
+            send_verification_email(request, user, mail_subject, email_template)
             messages.success(request,"Account activation e-mail link sent!")
             return redirect('registerUser')
         else:
@@ -90,7 +92,9 @@ def registerVendor(request):
             vendor.user_profile = user_profile
             vendor.save()
             # Send email notification for verification
-            send_verification_email(request, user)
+            mail_subject = "Please activate your account"
+            email_template = 'accounts/emails/account_verification_email.html'
+            send_verification_email(request, user, mail_subject, email_template)
             messages.success(request,"Vendor created successfully! <br> Please Wait for approval.")
             return redirect('registerVendor')
 
@@ -174,7 +178,9 @@ def forgot_password(request):
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email__exact = email)
             # Reset Password Email
-            reset_password_email(request, user)
+            mail_subject = "Password Reset Link"
+            email_template = 'accounts/emails/reset_password_email.html'
+            send_verification_email(request, user, mail_subject, email_template)
             messages.success(request,"Password reset mail sent to your email...")
             return redirect('login')
         else:
@@ -184,8 +190,19 @@ def forgot_password(request):
 
 def reset_password_validate(request, uidb64, token):
     # Validate the user by decoding the token and user pk.
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session['uid'] = uid
+        messages.info(request, "Please reset your password")
+        return redirect('reset_password')
+    else:
+        messages.error(request,"Reset password activation link expired!")
+        return redirect('login')
 
-    return
 
 def reset_password(request):
     return render(request, 'accounts/reset_password.html')
