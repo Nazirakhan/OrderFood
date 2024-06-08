@@ -33,3 +33,18 @@ def send_verification_email(request, user, mail_subject, email_template):
     send_email = EmailMessage(mail_subject, message, from_email, to=[to_email])
     send_email.content_subtype = "html"
     send_email.send()
+
+
+def send_notification(mail_subject, mail_template, context):
+    from_email = settings.DEFAULT_FROM_EMAIL
+    mail_subject = mail_subject
+    message = render_to_string(mail_template,{
+        'user': user,
+        'domain': current_site,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': default_token_generator.make_token(user),
+    })
+    to_email = user.email
+    send_email = EmailMessage(mail_subject, message, from_email, to=[to_email])
+    send_email.content_subtype = "html"
+    send_email.send()
