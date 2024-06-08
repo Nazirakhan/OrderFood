@@ -20,22 +20,17 @@ class Vendor(models.Model):
             # update
             original = Vendor.objects.get(pk=self.pk)
             if original.is_approved != self.is_approved:
+                mail_template = "accounts/emails/admin_approval_email.html"
+                context = {
+                    'user':self.user,
+                    'is_approved':self.is_approved,
+                }
                 if self.is_approved == True:
                     # Send Notification Email
-                    mail_subject = "Congratulations! Your Restaurand has been approved"
-                    mail_template = "accounts/emails/admin_approval_email.html"
-                    context = {
-                        'user':self.user,
-                        'is_approved':self.is_approved,
-                    }
+                    mail_subject = "Congratulations: Restaurant Menu Approved"
                     send_notification(mail_subject, mail_template, context)
                 else:
                     # Send Notification Email
-                    mail_subject = "Sorry! Your Restaurant is not eligible for publishing your food menu on our marketplace."
-                    mail_template = "accounts/emails/admin_approval_email.html"
-                    context = {
-                        'user':self.user,
-                        'is_approved':self.is_approved,
-                    }
+                    mail_subject = "Rejected: Restaurant Menu"
                     send_notification(mail_subject, mail_template, context)
         return super(Vendor, self).save(*args, **kwargs)

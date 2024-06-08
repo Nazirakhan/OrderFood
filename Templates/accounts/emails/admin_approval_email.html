@@ -1,0 +1,13 @@
+{% load static %}
+{% autoescape off %}
+Hi, {{user.first_name}},
+
+{% if is_approved %}
+    <p>Congratulations!, Your Restaurand has been approved by our admin team. --Food Online--</p>
+{% else %}
+    <p>We're Sorry!, Your Restaurand has not been approved by our admin team. <br>
+        For more details, Please contact support@foodonline.com <br> --Food Online--</p>
+{% endif %}
+
+<img src="http://{{domain}}/static/assets/extra-image/wendy.png" alt="my image" />
+{% endautoescape %}
